@@ -1230,7 +1230,7 @@ class Entry extends Controller {
 			$this->email->initialize($config);
 
 			/* Sending email */
-			$this->email->from('', 'Webzash');
+			$this->email->from('', 'EasyBooks');
 			$this->email->to($this->input->post('email_to', TRUE));
 			$this->email->subject($current_entry_type['name'] . ' Entry No. ' . full_entry_number($entry_type_id, $cur_entry->number));
 			$this->email->message($message);
