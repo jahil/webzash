@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS ledgers (
   id int(11) NOT NULL AUTO_INCREMENT,
   group_id int(11) NOT NULL,
   name varchar(100) NOT NULL,
-  op_balance decimal(15,2) NOT NULL DEFAULT '0.00',
+  op_balance int(15) NOT NULL DEFAULT 0,
   op_balance_dc char(1) NOT NULL,
   type INT(2) NOT NULL DEFAULT 0,
   reconciliation int(1) NOT NULL,
@@ -37,8 +37,8 @@ CREATE TABLE IF NOT EXISTS entries (
   entry_type int(5) NOT NULL,
   number int(11) DEFAULT NULL,
   date datetime NOT NULL,
-  dr_total decimal(15,2) NOT NULL DEFAULT '0.00',
-  cr_total decimal(15,2) NOT NULL DEFAULT '0.00',
+  dr_total int(15) NOT NULL DEFAULT 0,
+  cr_total int(15) NOT NULL DEFAULT 0,
   narration text NOT NULL,
   PRIMARY KEY (id)
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;
@@ -47,7 +47,7 @@ CREATE TABLE IF NOT EXISTS entry_items (
   id int(11) NOT NULL AUTO_INCREMENT,
   entry_id int(11) NOT NULL,
   ledger_id int(11) NOT NULL,
-  amount decimal(15,2) NOT NULL DEFAULT '0.00',
+  amount int(15) NOT NULL DEFAULT 0,
   dc char(1) NOT NULL,
   reconciliation_date datetime NULL,
   PRIMARY KEY (id)
