@@ -31,8 +31,8 @@
 			echo "</td>";
 
 			echo "<td>" . $current_entry_type['name'] . "</td>";
-			echo "<td>" . $row->dr_total . "</td>";
-			echo "<td>" . $row->cr_total . "</td>";
+			echo "<td align='right'>" . number_format($row->dr_total) . "</td>";
+			echo "<td align='right'>" . number_format($row->cr_total) . "</td>";
 
 			echo "<td>" . anchor('entry/edit/' . $current_entry_type['label'] . "/" . $row->id , "Edit", array('title' => 'Edit ' . $current_entry_type['name'] . ' Entry', 'class' => 'red-link')) . " ";
 			echo " &nbsp;" . anchor('entry/delete/' . $current_entry_type['label'] . "/" . $row->id , img(array('src' => asset_url() . "images/icons/delete.png", 'border' => '0', 'alt' => 'Delete ' . $current_entry_type['name'] . ' Entry', 'class' => "confirmClick", 'title' => "Delete entry")), array('title' => 'Delete  ' . $current_entry_type['name'] . ' Entry')) . " ";

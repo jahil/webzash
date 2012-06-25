@@ -73,7 +73,7 @@
 
 		echo "<table border=0 cellpadding=5 class=\"simple-table ledgerst-table\">";
 
-		echo "<thead><tr><th>Date</th><th>No.</th><th>Ledger Name</th><th>Type</th><th>Dr Amount</th><th>Cr Amount</th><th>Balance</th></tr></thead>";
+		echo "<thead><tr><th>Date</th><th>No.</th><th>Description</th><th>Type</th><th>Debit</th><th>Credit</th><th>Balance</th></tr></thead>";
 		$odd_even = "odd";
 
 		$cur_balance = 0;
@@ -139,22 +139,22 @@
 			if ($row->entry_items_dc == "D")
 			{
 				$cur_balance = float_ops($cur_balance, $row->entry_items_amount, '+');
-				echo "<td>";
-				echo convert_dc($row->entry_items_dc);
+				echo "<td align='right'>";
+				//echo convert_dc($row->entry_items_dc);
 				echo " ";
-				echo $row->entry_items_amount;
+				echo number_format($row->entry_items_amount);
 				echo "</td>";
 				echo "<td></td>";
 			} else {
 				$cur_balance = float_ops($cur_balance, $row->entry_items_amount, '-');
 				echo "<td></td>";
-				echo "<td>";
-				echo convert_dc($row->entry_items_dc);
+				echo "<td align='right'>";
+				//echo convert_dc($row->entry_items_dc);
 				echo " ";
-				echo $row->entry_items_amount;
+				echo number_format($row->entry_items_amount);
 				echo "</td>";
 			}
-			echo "<td>";
+			echo "<td align='right'>";
 			echo convert_amount_dc($cur_balance);
 			echo "</td>";
 			echo "</tr>";
@@ -162,7 +162,7 @@
 		}
 
 		/* Current Page Closing Balance */
-		echo "<tr class=\"tr-balance\"><td colspan=6>Closing</td><td>" .  convert_amount_dc($cur_balance) . "</td></tr>";
+		echo "<tr class=\"tr-balance\"><td colspan=6>Closing</td> <td align='right'>" .  convert_amount_dc($cur_balance) . "</td></tr>";
 		echo "</table>";
 	}
 ?>
