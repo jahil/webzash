@@ -16,7 +16,7 @@
 	<br />
 	<table id="print-entry-table">
 		<thead>
-			<tr class="tr-title"><th>Ledger Account</th><th>Dr Amount</th><th>Cr Amount</th></tr>
+			<tr class="tr-title"><th>Account</th><th>Debit</th><th>Credit</th></tr>
 		</thead>
 		<tbody>
 		<?php

@@ -9,8 +9,8 @@
 			<th>No</th>
 			<th>Ledger Account</th>
 			<th>Type</th>
-			<th>DR Amount</th>
-			<th>CR Amount</th>
+			<th>Debit</th>
+			<th>Credit</th>
 			<th></th>
 		</tr>
 	</thead>
