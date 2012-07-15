@@ -126,7 +126,7 @@ table.ledgerst-table tr th {
 
 table.ledgerst-table tr td {
 	border:1px solid #000000;
-	padding:5px 30px 5px 5px;
+	/*padding:5px 30px 5px 5px;*/
 }
 
 table.ledgerst-total-table {

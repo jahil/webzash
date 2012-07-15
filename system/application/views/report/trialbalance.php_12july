@@ -1,9 +1,3 @@
-<style>
-	table.simple-table td{
-		border-bottom: 1px solid #BBBBBB;
-	}
-	table.simple-table th{border-bottom: 1px solid #BBBBBB;border-top: 1px solid #BBBBBB;}
-</style>
 <?php
 //echo phpinfo();
 	$this->load->library('accountlist');
@@ -12,8 +6,8 @@
 	$asset = new Accountlist();
 	echo "<td>";
 	$asset->init(0);
-	echo "<table width='100%' border=0 cellpadding=5 cellspacing=\"0\" class=\"simple-table\">";
-	echo "<thead><tr><th width='30%'>Ledger Account</th><th align='right'>Opening Balance (Dr)</th><th align='right'>Opening Balance (Cr)</th><th align='right'>Current Balance (Dr)</th><th align='right'>Current Balance (Cr)</th><th align='right'>Closing Balance (Dr)</th><th align='right'>Closing Balance (Cr)</th></tr></thead>";
+	echo "<table width='100%' border=0 cellpadding=5 class=\"simple-table account-table\">";
+	echo "<thead><tr><th>Ledger Account</th><th>Dr Opening Balance</th><th>Cr Opening Balance</th><th>Dr Current Balance</th><th>Cr Current Balance</th><th>Dr Closing Balance</th><th>Cr Closing Balance</th></tr></thead>";
 	$asset->account_st_short(-1,'trial');
 	$this->load->model('Ledger_model');
 	$dr_op_total=$this->Ledger_model->get_trailTotal('drop');

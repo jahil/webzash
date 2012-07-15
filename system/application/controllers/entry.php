@@ -547,7 +547,8 @@ class Entry extends Controller {
 
 			/* Showing success message in show() method since message is too long for storing it in session */
 			$this->logger->write_message("success", "Added " . $current_entry_type['name'] . " Entry number " . full_entry_number($entry_type_id, $data_number) . " [id:" . $entry_id . "]");
-			redirect('entry/show/' . $current_entry_type['label']);
+			//redirect('entry/show/' . $current_entry_type['label']);
+			redirect('entry/add/' . $current_entry_type['label']);
 			$this->template->load('template', 'entry/add', $data);
 			return;
 		}

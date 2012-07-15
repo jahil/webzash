@@ -45,20 +45,6 @@ if ( ! function_exists('convert_amount_dc'))
 	}
 }
 
-if ( ! function_exists('convert_amount_to_dc'))
-{
-	function convert_amount_to_dc($amount)
-	{
-		if ($amount == "D")
-			return "0";
-		else if ($amount < 0)
-			return  convert_cur(-$amount);
-		else
-			return  convert_cur($amount);
-	}
-}
-
-
 /**
  * Converts Opening balance amount to Dr or Cr Value
  *
@@ -86,7 +72,7 @@ if ( ! function_exists('convert_cur'))
 {
 	function convert_cur($amount)
 	{
-		return number_format($amount);
+		return number_format($amount, 0, '.', ',');
 	}
 }
 

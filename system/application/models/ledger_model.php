@@ -200,4 +200,289 @@ class Ledger_model extends Model {
 		$this->db->where('ledger_id', $ledger_id)->update('entry_items', $update_data);
 		return;
 	}
+	/* convert Date formate dd/mm/yyyy to (yyyy-mm-dd or mm-dd-yyyy) */
+	function convertDate($mydate,$formate){
+		list($d, $m, $y) = preg_split('/\//', $mydate);
+		if($formate=='y-m-d'){
+			$mydate = sprintf('%4d%02d%02d', $y, $m, $d);
+			return $mydate;
+		}elseif($formate=='m-d-y'){
+			$mydate = sprintf('%02d%02d%4d', $m, $d, $y);
+			return $mydate;
+		}
+	}
+	function get_trailTotal($col){
+		$temp_total=0;
+		switch($col){
+			case 'drop':
+				for($i=1;$i<=4;$i++){
+					$dr_op_total=$this->get_opBalance_byGroup($i);
+					$temp_total = float_ops($temp_total, $dr_op_total['dr_opbalance'], '+');
+				}
+			break;
+			case 'crop':
+				for($i=1;$i<=4;$i++){
+					$cr_op_total=$this->get_opBalance_byGroup($i);
+					$temp_total = float_ops($temp_total, $cr_op_total['cr_opbalance'], '+');
+				}
+			break;
+			case 'drcu':
+				for($i=1;$i<=4;$i++){
+					$dr_cu_total=$this->get_drTotal_byGroup($i);
+					$temp_total = float_ops($temp_total, $dr_cu_total, '+');
+				}
+			break;
+			case 'crcu':
+				for($i=1;$i<=4;$i++){
+					$cr_cu_total=$this->get_crTotal_byGroup($i);
+					$temp_total = float_ops($temp_total, $cr_cu_total, '+');
+				}
+			break;
+			case 'drcl':
+				for($i=1;$i<=4;$i++){
+					$dr_cl_total=$this->get_clBalance_byGroup($i);
+					$temp_total = float_ops($temp_total, $dr_cl_total['dr_clbalance'], '+');
+				}
+			break;
+			case 'crcl':
+				for($i=1;$i<=4;$i++){
+					$cr_cl_total=$this->get_clBalance_byGroup($i);
+					$temp_total = float_ops($temp_total, $cr_cl_total['cr_clbalance'], '+');
+				}
+			break;
+		}
+		return $temp_total;
+	}
+	function drtotal(){
+		$temp_dr_total = 0;
+		$temp_cr_total = 0;
+		$all_ledgers = $this->get_all_ledgers();
+		foreach ($all_ledgers as $ledger_id => $ledger_name){
+			$dr_total = $this->get_dr_total($ledger_id);
+			if ($dr_total){
+				$temp_dr_total = float_ops($temp_dr_total, $dr_total, '+');
+			}
+			$cr_total = $this->get_cr_total($ledger_id);
+			if ($cr_total){
+				$temp_cr_total = float_ops($temp_cr_total, $cr_total, '+');
+			}
+		}
+		$data['temp_dr_total']=$temp_dr_total;
+		$data['temp_cr_total']=$temp_cr_total;
+		return $data;
+	}
+	function get_sub_groups($gid){
+		$this->db->from('groups')->where('parent_id', $gid);
+		$child_group_q = $this->db->get();
+		if($child_group_q->num_rows>0){
+			foreach ($child_group_q->result() as $row){
+				if($row->id){
+					$subgroups[]=$row->id;
+					$this->get_sub_groups($row->id);
+				}
+			}
+		}else{$subgroups = array();}
+		return $subgroups;
+	}
+	function get_sub_ledgers($gid){	$children_ledgers=array();	
+		$this->db->from('ledgers')->where('group_id', $gid);
+		$child_ledger_q = $this->db->get();
+		$counter = 0;$total=0;
+		foreach ($child_ledger_q->result() as $row)
+		{
+			$children_ledgers[$counter]['id'] = $row->id;
+			$children_ledgers[$counter]['name'] = $row->name;
+			$children_ledgers[$counter]['total'] = $this->get_ledger_balance($row->id);
+			list ($children_ledgers[$counter]['opbalance'], $children_ledgers[$counter]['optype']) = $this->get_op_balance($row->id);
+			$counter++;
+		}
+		return $children_ledgers;
+	}
+	
+	function get_clBalance_byGroup($group_id){
+		$dr_clbalance = 0;
+		$cr_clbalance = 0;
+		$subgroup_ids=$this->get_sub_groups($group_id);	
+		if($subgroup_ids){
+			foreach($subgroup_ids as $subgroup_id){
+				$subsubgroup_ids=$this->get_sub_groups($subgroup_id);
+				$suball_ledgers = $this->get_sub_ledgers($subgroup_id);
+
+				foreach ($suball_ledgers as $subledger){
+					$dr_total = $this->get_dr_total($subledger['id']);
+					$cr_total = $this->get_cr_total($subledger['id']);			
+					$total = float_ops($dr_total, $cr_total, '-');
+					if($subledger['optype']=='D'){
+						$dr_clTotal= float_ops($total,$subledger['opbalance'], '+'); 
+						echo '&nbsp;&nbsp;';
+						if($dr_clTotal>0){
+							$dr_clbalance = float_ops($dr_clbalance,$dr_clTotal, '+');
+						}else{$cr_clbalance = float_ops($cr_clbalance,$dr_clTotal, '+');}
+					}else{
+						$cr_clTotal= float_ops($total,$subledger['opbalance'], '-');
+						if($cr_clTotal>0){
+							$dr_clbalance = float_ops($dr_clbalance,$cr_clTotal, '+');
+						}else{$cr_clbalance = float_ops($cr_clbalance,$cr_clTotal, '+');}
+					}	
+							
+				}
+				
+				if($subsubgroup_ids){
+					foreach($subsubgroup_ids as $subsubgroup_id){
+						$all_ledgers = $this->get_sub_ledgers($subsubgroup_id);
+						foreach ($all_ledgers as $ledger){
+							$dr_total = $this->get_dr_total($ledger['id']);
+							$cr_total = $this->get_cr_total($ledger['id']);			
+							$total = float_ops($dr_total, $cr_total, '-');
+							if($ledger['optype']=='D'){
+								$dr_clTotal= float_ops($total,$ledger['opbalance'], '+');
+								if($dr_clTotal>0){
+									$dr_clbalance = float_ops($dr_clbalance,$dr_clTotal, '+');
+								}else{$cr_clbalance = float_ops($cr_clbalance,$dr_clTotal, '+');}
+							}else{
+								$cr_clTotal= float_ops($total,$ledger['opbalance'], '-');
+								if($cr_clTotal>0){
+									$dr_clbalance = float_ops($dr_clbalance,$cr_clTotal, '+');
+								}else{$cr_clbalance = float_ops($cr_clbalance,$cr_clTotal, '+');}
+							}				
+						}
+					}
+				}
+			}
+		}
+		
+		$all_ledgers = $this->get_sub_ledgers($group_id);
+		foreach ($all_ledgers as $ledger){
+			$dr_total = $this->get_dr_total($ledger['id']);
+			$cr_total = $this->get_cr_total($ledger['id']);			
+			$total = float_ops($dr_total, $cr_total, '-');
+			if($ledger['optype']=='D'){
+				$dr_clTotal= float_ops($total,$ledger['opbalance'], '+');
+				if($dr_clTotal>0){
+				$dr_clbalance = float_ops($dr_clbalance,$dr_clTotal, '+');
+				}else{$cr_clbalance = float_ops($cr_clbalance,$dr_clTotal, '+');}
+			}else{
+				$cr_clTotal= float_ops($total,$ledger['opbalance'], '-');
+				if($cr_clTotal>0){
+				$dr_clbalance = float_ops($dr_clbalance,$cr_clTotal, '+');
+				}else{$cr_clbalance = float_ops($cr_clbalance,$cr_clTotal, '+');}
+			}				
+		}
+		
+		$data['dr_clbalance']=$dr_clbalance;
+		$data['cr_clbalance']=$cr_clbalance;
+		return $data;
+	}
+	function get_opBalance_byGroup($group_id){
+		$dr_opbalance = 0;
+		$cr_opbalance = 0;
+		$subgroup_ids=$this->get_sub_groups($group_id);		
+		if($subgroup_ids){
+			foreach($subgroup_ids as $subgroup_id){
+				$subsubgroup_ids=$this->get_sub_groups($subgroup_id);
+				$suball_ledgers = $this->get_sub_ledgers($subgroup_id);
+				foreach ($suball_ledgers as $subledger){
+					if($subledger['optype']=='D'){
+						$dr_opbalance = float_ops($dr_opbalance, $subledger['opbalance'], '+');
+					}else{
+						$cr_opbalance = float_ops($cr_opbalance, $subledger['opbalance'], '+');
+					}			
+				}
+				if($subsubgroup_ids){
+					foreach($subsubgroup_ids as $subsubgroup_id){
+						$all_ledgers = $this->get_sub_ledgers($subsubgroup_id);
+						foreach ($all_ledgers as $ledger){
+							if($ledger['optype']=='D'){
+								$dr_opbalance = float_ops($dr_opbalance, $ledger['opbalance'], '+');
+							}else{
+								$cr_opbalance = float_ops($cr_opbalance, $ledger['opbalance'], '+');
+							}			
+						}
+					}
+				}
+			}
+		}
+		$all_ledgers = $this->get_sub_ledgers($group_id);
+		foreach ($all_ledgers as $ledger){
+			if($ledger['optype']=='D'){
+				$dr_opbalance = float_ops($dr_opbalance, $ledger['opbalance'], '+');
+			}else{
+				$cr_opbalance = float_ops($cr_opbalance, $ledger['opbalance'], '+');
+			}			
+		}
+		
+		$data['dr_opbalance']=$dr_opbalance;
+		$data['cr_opbalance']=$cr_opbalance;
+		return $data;
+	}
+	function get_drTotal_byGroup($group_id){
+		$group_dr_total = 0;
+		$subgroup_ids=$this->get_sub_groups($group_id);		
+		if($subgroup_ids){
+			foreach($subgroup_ids as $subgroup_id){
+				$subsubgroup_ids=$this->get_sub_groups($subgroup_id);
+				$suball_ledgers = $this->get_sub_ledgers($subgroup_id);
+				foreach ($suball_ledgers as $ledger){
+					$dr_total = $this->get_dr_total($ledger['id']);
+					if ($dr_total){
+						$group_dr_total = float_ops($group_dr_total, $dr_total, '+');
+					}			
+				}
+				if($subsubgroup_ids){
+					foreach($subsubgroup_ids as $subsubgroup_id){
+						$all_ledgers = $this->get_sub_ledgers($subsubgroup_id);
+						foreach ($all_ledgers as $ledger){
+							$dr_total = $this->get_dr_total($ledger['id']);
+							if ($dr_total){
+								$group_dr_total = float_ops($group_dr_total, $dr_total, '+');
+							}			
+						}
+					}
+				}
+			}
+		}
+		$all_ledgers = $this->get_sub_ledgers($group_id);
+		foreach ($all_ledgers as $ledger){
+			$dr_total = $this->get_dr_total($ledger['id']);
+			if ($dr_total){
+				$group_dr_total = float_ops($group_dr_total, $dr_total, '+');
+			}			
+		}
+		return $group_dr_total;
+	}
+	function get_crTotal_byGroup($group_id){
+		$group_cr_total = 0;
+		$subgroup_ids=$this->get_sub_groups($group_id);		
+		if($subgroup_ids){
+			foreach($subgroup_ids as $subgroup_id){
+				$subsubgroup_ids=$this->get_sub_groups($subgroup_id);
+				$suball_ledgers = $this->get_sub_ledgers($subgroup_id);
+				foreach ($suball_ledgers as $ledger){
+					$cr_total = $this->get_cr_total($ledger['id']);
+					if ($cr_total){
+						$group_cr_total = float_ops($group_cr_total, $cr_total, '+');
+					}			
+				}
+				if($subsubgroup_ids){
+					foreach($subsubgroup_ids as $subsubgroup_id){
+						$all_ledgers = $this->get_sub_ledgers($subsubgroup_id);
+						foreach ($all_ledgers as $ledger){
+							$cr_total = $this->get_cr_total($ledger['id']);
+							if ($cr_total){
+								$group_cr_total = float_ops($group_cr_total, $cr_total, '+');
+							}			
+						}
+					}
+				}
+			}
+		}
+		$all_ledgers = $this->get_sub_ledgers($group_id);
+		foreach ($all_ledgers as $ledger){
+			$cr_total = $this->get_cr_total($ledger['id']);
+			if ($cr_total){
+				$group_cr_total = float_ops($group_cr_total, $cr_total, '+');
+			}			
+		}
+		return $group_cr_total;
+	}
 }

@@ -101,10 +101,10 @@ $pagination_counter = $this->config->item('row_count');
 			/* Opening balance */
 			if ($optype == "D")
 			{
-				echo "<tr class=\"tr-balance\"><td colspan=6>Opening Balance</td><td align='right'>" . convert_opening($opbalance, $optype) . "</td></tr>";
+				echo "<tr class=\"tr-balance\"><td colspan=6>Opening Balance</td><td>" . convert_opening($opbalance, $optype) . "</td></tr>";
 				$cur_balance = float_ops($cur_balance, $opbalance, '+');
 			} else {
-				echo "<tr class=\"tr-balance\"><td colspan=6>Opening Balance</td><td align='right'>" . convert_opening($opbalance, $optype) . "</td></tr>";
+				echo "<tr class=\"tr-balance\"><td colspan=6>Opening Balance</td><td>" . convert_opening($opbalance, $optype) . "</td></tr>";
 				$cur_balance = float_ops($cur_balance, $opbalance, '-');
 			}
 		} else {
@@ -117,10 +117,9 @@ $pagination_counter = $this->config->item('row_count');
 			}
 
 			/* Calculating previous balance */
-			$this->db->select('entries.id as entries_id, entries.number as entries_number, entries.date as entries_date, entries.entry_type as entries_entry_type, entry_items.amount as entry_items_amount, SUM(entry_items.amount) as entry_items_amount_total, entry_items.dc as entry_items_dc');
+			$this->db->select('entries.id as entries_id, entries.number as entries_number, entries.date as entries_date, entries.entry_type as entries_entry_type, entry_items.amount as entry_items_amount, entry_items.dc as entry_items_dc');
 			$this->db->from('entries')->join('entry_items', 'entries.id = entry_items.entry_id')->where('entry_items.ledger_id', $ledger_id)->order_by('entries.date', 'asc')->order_by('entries.number', 'asc')->limit($page_count, 0);
 			$prevbal_q = $this->db->get();
-			
 			foreach ($prevbal_q->result() as $row )
 			{
 				if ($row->entry_items_dc == "D")
@@ -132,8 +131,7 @@ $pagination_counter = $this->config->item('row_count');
 			/* Show new current total */
 			echo "<tr class=\"tr-balance\"><td colspan=6>Opening</td><td>" . convert_amount_dc($cur_balance) . "</td></tr>";
 		}
-		$debitsum=0;
-		$creditsum=0;
+
 		foreach ($ledgerst_q->result() as $row)
 		{
 			$current_entry_type = entry_type_info($row->entries_entry_type);
@@ -165,7 +163,6 @@ $pagination_counter = $this->config->item('row_count');
 				echo number_format($row->entry_items_amount);
 				echo "</td>";
 				echo "<td></td>";
-				$debitsum += $row->entry_items_amount;
 			} else {
 				$cur_balance = float_ops($cur_balance, $row->entry_items_amount, '-');
 				echo "<td></td>";
@@ -174,7 +171,6 @@ $pagination_counter = $this->config->item('row_count');
 				echo " ";
 				echo number_format($row->entry_items_amount);
 				echo "</td>";
-				$creditsum += $row->entry_items_amount;
 			}
 			echo "<td align='right'>";
 			echo convert_amount_dc($cur_balance);
@@ -184,7 +180,7 @@ $pagination_counter = $this->config->item('row_count');
 		}
 
 		/* Current Page Closing Balance */
-		echo "<tr class=\"tr-balance\"><td colspan=4>Grand Total</td><td align='right'>Dr ".number_format($debitsum)."</td><td align='right'>Cr " .  number_format($creditsum) . "</td> <td align='right'>" .  convert_amount_dc($cur_balance) . "</td></tr>";
+		echo "<tr class=\"tr-balance\"><td colspan=6>Closing</td> <td align='right'>" .  convert_amount_dc($cur_balance) . "</td></tr>";
 		echo "</table>";
 			
 			
@@ -221,10 +217,10 @@ $pagination_counter = $this->config->item('row_count');
 			/* Opening balance */
 			if ($optype == "D")
 			{
-				echo "<tr class=\"tr-balance\"><td colspan=5>Opening Balance</td><td align='right'>" . convert_opening($opbalance, $optype) . "</td></tr>";
+				echo "<tr class=\"tr-balance\"><td colspan=5>Opening Balance</td><td align='center'>" . convert_opening($opbalance, $optype) . "</td></tr>";
 				$cur_balance = float_ops($cur_balance, $opbalance, '+');
 			} else {
-				echo "<tr class=\"tr-balance\"><td colspan=5>Opening Balance</td><td align='right'>" . convert_opening($opbalance, $optype) . "</td></tr>";
+				echo "<tr class=\"tr-balance\"><td colspan=5>Opening Balance</td><td align='center'>" . convert_opening($opbalance, $optype) . "</td></tr>";
 				$cur_balance = float_ops($cur_balance, $opbalance, '-');
 			}
 		} else {
@@ -251,8 +247,7 @@ $pagination_counter = $this->config->item('row_count');
 			/* Show new current total */
 			echo "<tr class=\"tr-balance\"><td colspan=6>Opening</td><td align='center'>" . convert_amount_dc($cur_balance) . "</td></tr>";
 		}
-$debitsum=0;
-$creditsum=0;
+
 		foreach ($ledgerst_q->result() as $row)
 		{
 			$current_entry_type = entry_type_info($row->entries_entry_type);
@@ -278,24 +273,22 @@ $creditsum=0;
 			if ($row->entry_items_dc == "D")
 			{
 				$cur_balance = float_ops($cur_balance, $row->entry_items_amount, '+');
-				echo "<td align='right'>";
+				echo "<td align='center'>";
 				//echo convert_dc($row->entry_items_dc);
 				echo " ";
 				echo number_format($row->entry_items_amount);
 				echo "</td>";
 				echo "<td></td>";
-				$debitsum += $row->entry_items_amount;
 			} else {
 				$cur_balance = float_ops($cur_balance, $row->entry_items_amount, '-');
-				echo "<td align='right'></td>";
-				echo "<td align='right'>";
+				echo "<td align='center'></td>";
+				echo "<td align='center'>";
 				//echo convert_dc($row->entry_items_dc);
 				echo " ";
 				echo number_format($row->entry_items_amount);
 				echo "</td>";
-				$creditsum += $row->entry_items_amount;
 			}
-			echo "<td align='right'>";
+			echo "<td align='center'>";
 			echo convert_amount_dc($cur_balance);
 			echo "</td>";
 			echo "</tr>";
@@ -303,7 +296,7 @@ $creditsum=0;
 		}
 
 		/* Current Page Closing Balance */
-		echo "<tr class=\"tr-balance\" style='font-weight:bold;'><td colspan=3>Grand Total</td><td align='right'>Dr ".number_format($debitsum)."</td><td align='right'>Cr " .  number_format($creditsum) . "</td> <td align='right'>" .  convert_amount_dc($cur_balance) . "</td></tr>";
+		echo "<tr class=\"tr-balance\"><td colspan=5>Closing Balance</td> <td align='center'>" .  convert_amount_dc($cur_balance) . "</td></tr>";
 		echo "</table>";
 			
 			

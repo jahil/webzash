@@ -148,7 +148,7 @@
 				echo "<td>";
 				echo convert_dc($row->entry_items_dc);
 				echo " ";
-				echo $row->entry_items_amount;
+				echo convert_cur($row->entry_items_amount);
 				echo "</td>";
 				echo "<td></td>";
 			} else {
@@ -156,7 +156,7 @@
 				echo "<td>";
 				echo convert_dc($row->entry_items_dc);
 				echo " ";
-				echo $row->entry_items_amount;
+				echo convert_cur($row->entry_items_amount);
 				echo "</td>";
 			}
 

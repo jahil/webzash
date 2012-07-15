@@ -1,5 +1,5 @@
 <?php
-session_start();
+
 class Report extends Controller {
 	var $acc_array;
 	var $account_counter;
@@ -72,9 +72,6 @@ class Report extends Controller {
 			$ledger_id = $this->input->post('ledger_id', TRUE);
 			$ledger_start_date = $this->input->post('ledger_start_date');
 			$ledger_end_date = $this->input->post('ledger_end_date');
-	echo		$_SESSION['sdate']=$ledger_start_date;
-		echo	$_SESSION['edate']=$ledger_end_date;
-
 			$data['print_preview'] = FALSE;
 			$data['ledger_id'] = $ledger_id;
 			if($ledger_start_date==''&&$ledger_end_date=''){
@@ -888,14 +885,12 @@ class Report extends Controller {
 			$data['ledger_id'] = $this->uri->segment(4);
 			/* Checking for valid ledger id */
 			if ($data['ledger_id'] < 1)
-			{echo $data['ledger_id'];
+			{
 				$this->messages->add('Invalid Ledger account.', 'error');
 				redirect('report/ledgerst');
 				return;
 			}
-			
 			$this->db->from('ledgers')->where('id', $data['ledger_id'])->limit(1);
-				
 			if ($this->db->get()->num_rows() < 1)
 			{
 				$this->messages->add('Invalid Ledger account.', 'error');

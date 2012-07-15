@@ -114,7 +114,7 @@ class Accountlist
 			if ($this->id != 0){
 				if($this->total!=0){
 					echo "<tr class=\"tr-group\">";
-					echo "<td class=\"td-group\" width='30%'>";
+					echo "<td class=\"td-group\">";
 					echo $this->print_space($this->counter);
 					if ($this->id <= 4)
 						echo "&nbsp;<strong>" .  $this->name. "</strong>";
@@ -172,19 +172,18 @@ class Accountlist
 				foreach ($this->children_ledgers as $id => $data){
 					if($data['total']!=0){
 					echo "<tr class=\"tr-ledger\">";
-					echo "<td class=\"td-ledger\" width='30%'>";
+					echo "<td class=\"td-ledger\">";
 					echo $this->print_space($this->counter);
 					echo "&nbsp;" . anchor('report/ledgerst/' . $data['id'], $data['name'], array('title' => $data['name'] . ' Ledger Statement', 'style' => 'color:#000000'));
 					echo "</td>";
 					//echo "<td>Ledger Account</td>";
 					/*Dr Opening*/
 					echo "<td class=\"td-ledger\" align='right'>" ;
-					$convert_cur=convert_cur($data['opbalance']);
-					if($data['optype']=='D' and $convert_cur!=0){echo convert_cur($data['opbalance']);}else echo '-' ;
+					if($data['optype']=='D'){echo convert_cur($data['opbalance']);}else echo '-' ;
 					echo "</td>";
 					/*Cr Opening*/
 					echo "<td class=\"td-ledger\" align='right'>" ;
-					if($data['optype']!='D' and $convert_cur!=0){echo convert_cur($data['opbalance']);}else echo '-' ;
+					if($data['optype']!='D'){echo convert_cur($data['opbalance']);}else echo '-' ;
 					echo "</td>";
 					/*Dr Total*/
 					echo "<td class=\"td-ledger\" align='right'>";

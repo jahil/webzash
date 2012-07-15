@@ -55,7 +55,7 @@ if ( ! function_exists('form_open'))
 	
 		$form .= _attributes_to_string($attributes, TRUE);
 	
-		$form .= ' id="form1">';
+		$form .= '>';
 
 		if (is_array($hidden) AND count($hidden) > 0)
 		{

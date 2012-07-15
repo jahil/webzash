@@ -74,87 +74,90 @@ class Accountlist
 	}
 
 	/* Display Account list in Balance sheet and Profit and Loss st */
-	function account_st_short($c = 0,$st=''){
+	function account_st_short($c = 0,$st='')
+	{
 		$this->counter = $c;
 		if($st==''){
-			if ($this->id != 0){
-				if($this->total!=0){
-					echo "<tr class=\"tr-group\">";
-					echo "<td class=\"td-group\">";
+		if ($this->id != 0){
+			if($this->total!=0){
+				echo "<tr class=\"tr-group\">";
+				echo "<td class=\"td-group\">";
+				echo $this->print_space($this->counter);
+				echo "&nbsp;" .  $this->name;
+				echo "</td>";
+			echo "<td align=\"right\"><b>" . convert_amount_to_dc($this->total) .  "</b></td>";
+			//echo "<td align=\"right\">" . convert_amount_to_dc($this->total) . $this->print_space($this->counter) . "</td>";
+				echo "</tr>";
+			}
+		}
+		foreach ($this->children_groups as $id => $data)
+		{
+			$this->counter++;
+			$data->account_st_short($this->counter);
+			$this->counter--;
+		}
+		if (count($this->children_ledgers) > 0)
+		{
+			$this->counter++;
+			foreach ($this->children_ledgers as $id => $data){
+				if($data['total']!=0){
+					echo "<tr class=\"tr-ledger\">";
+					echo "<td class=\"td-ledger\">";
 					echo $this->print_space($this->counter);
-					echo "&nbsp;" .  $this->name;
+					echo "&nbsp;" . anchor('report/ledgerst/' . $data['id'], $data['name'], array('title' => $data['name'] . ' Ledger Statement', 'style' => 'color:#000000'));
 					echo "</td>";
-				echo "<td align=\"right\"><b>" . convert_amount_to_dc($this->total) .  "</b></td>";
-				//echo "<td align=\"right\">" . convert_amount_to_dc($this->total) . $this->print_space($this->counter) . "</td>";
+					echo "<td align=\"right\">" . convert_amount_to_dc($data['total'])."</td>";
+					//echo "<td align=\"right\">" . convert_amount_to_dc($data['total']) . $this->print_space($this->counter) . "</td>";
 					echo "</tr>";
 				}
 			}
-			foreach ($this->children_groups as $id => $data){
-				$this->counter++;
-				$data->account_st_short($this->counter);
-				$this->counter--;
-			}
-			if (count($this->children_ledgers) > 0){
-				$this->counter++;
-				foreach ($this->children_ledgers as $id => $data){
-					if($data['total']!=0){
-						echo "<tr class=\"tr-ledger\">";
-						echo "<td class=\"td-ledger\">";
-						echo $this->print_space($this->counter);
-						echo "&nbsp;" . anchor('report/ledgerst/' . $data['id'], $data['name'], array('title' => $data['name'] . ' Ledger Statement', 'style' => 'color:#000000'));
-						echo "</td>";
-						echo "<td align=\"right\">" . convert_amount_to_dc($data['total'])."</td>";
-						//echo "<td align=\"right\">" . convert_amount_to_dc($data['total']) . $this->print_space($this->counter) . "</td>";
-						echo "</tr>";
-					}
-				}
-				$this->counter--;
-			}
+			$this->counter--;
+		}
 		}else{
 			if ($this->id != 0){
 				if($this->total!=0){
-					echo "<tr class=\"tr-group\">";
-					echo "<td class=\"td-group\" width='30%'>";
-					echo $this->print_space($this->counter);
-					if ($this->id <= 4)
-						echo "&nbsp;<strong>" .  $this->name. "</strong>";
-					else
-						echo "&nbsp;" .  $this->name;
-					echo "</td>";
-					$CI =& get_instance();
-					$CI->load->model('Ledger_model');
-					$opBalance=$CI->Ledger_model->get_opBalance_byGroup($this->id);
-					$group_dr_total=$CI->Ledger_model->get_drTotal_byGroup($this->id);
-					$group_cr_total=$CI->Ledger_model->get_crTotal_byGroup($this->id);
-					$clBalance=$CI->Ledger_model->get_clBalance_byGroup($this->id);
-					//echo "<td>Group Account</td>";
-					echo "<td class=\"td-group\" align='right'><b>";
-					if($opBalance['dr_opbalance']) echo  convert_cur($opBalance['dr_opbalance']); else echo'-';
-					echo "</b></td>";
-					echo "<td class=\"td-group\" align='right'><b>";
-					if($opBalance['cr_opbalance']) echo  convert_cur($opBalance['cr_opbalance']); else echo'-';
-					echo "</b></td>";
-					echo "<td class=\"td-group\" align='right'><b>";
-					if($group_dr_total) echo  convert_cur($group_dr_total); else echo'-';
-					echo "</b></td>";
-					echo "<td class=\"td-group\" align='right'><b>";
-					if($group_cr_total) echo  convert_cur($group_cr_total); else echo '-';
-					echo "</b></td>";
-					echo "<td class=\"td-group\" align='right'>";
-					if($clBalance['dr_clbalance']) echo "<b>".convert_cur($clBalance['dr_clbalance'])."</b>";else echo '-';
-					echo "</td>";
-					echo "<td class=\"td-group\" align='right'>";
-					if($clBalance['cr_clbalance']) echo "<b>".convert_cur(-$clBalance['cr_clbalance'])."</b>";else echo '-';
-					echo "</td>";
-		
-					/*if ($this->id <= 4)
-					{
-						echo "<td class=\"td-actions\"></tr>";
-					} else {
-						echo "<td class=\"td-actions\">" . anchor('group/edit/' . $this->id , "Edit", array('title' => 'Edit Group', 'class' => 'red-link'));
-						echo " &nbsp;" . anchor('group/delete/' . $this->id, img(array('src' => asset_url() . "images/icons/delete.png", 'border' => '0', 'alt' => 'Delete group')), array('class' => "confirmClick", 'title' => "Delete Group")) . "</td>";
-					}*/
-					echo "</tr>";
+				echo "<tr class=\"tr-group\">";
+				echo "<td class=\"td-group\">";
+				echo $this->print_space($this->counter);
+				if ($this->id <= 4)
+					echo "&nbsp;<strong>" .  $this->name. "</strong>";
+				else
+					echo "&nbsp;" .  $this->name;
+				echo "</td>";
+				$CI =& get_instance();
+				$CI->load->model('Ledger_model');
+				$opBalance=$CI->Ledger_model->get_opBalance_byGroup($this->id);
+				$group_dr_total=$CI->Ledger_model->get_drTotal_byGroup($this->id);
+				$group_cr_total=$CI->Ledger_model->get_crTotal_byGroup($this->id);
+				$clBalance=$CI->Ledger_model->get_clBalance_byGroup($this->id);
+				//echo "<td>Group Account</td>";
+				echo "<td align='right'><b>";
+				if($opBalance['dr_opbalance']) echo  convert_cur($opBalance['dr_opbalance']); else echo'-';
+				echo "</b></td>";
+				echo "<td align='right'><b>";
+				if($opBalance['cr_opbalance']) echo  convert_cur($opBalance['cr_opbalance']); else echo'-';
+				echo "</b></td>";
+				echo "<td align='right'><b>";
+				if($group_dr_total) echo  convert_cur($group_dr_total); else echo'-';
+				echo "</b></td>";
+				echo "<td align='right'><b>";
+				if($group_cr_total) echo  convert_cur($group_cr_total); else echo '-';
+				echo "</b></td>";
+				echo "<td align='right'>";
+				if($clBalance['dr_clbalance']) echo "<b>".convert_cur($clBalance['dr_clbalance'])."</b>";else echo '-';
+				echo "</td>";
+				echo "<td align='right'>";
+				if($clBalance['cr_clbalance']) echo "<b>".convert_cur(-$clBalance['cr_clbalance'])."</b>";else echo '-';
+				echo "</td>";
+	
+				/*if ($this->id <= 4)
+				{
+					echo "<td class=\"td-actions\"></tr>";
+				} else {
+					echo "<td class=\"td-actions\">" . anchor('group/edit/' . $this->id , "Edit", array('title' => 'Edit Group', 'class' => 'red-link'));
+					echo " &nbsp;" . anchor('group/delete/' . $this->id, img(array('src' => asset_url() . "images/icons/delete.png", 'border' => '0', 'alt' => 'Delete group')), array('class' => "confirmClick", 'title' => "Delete Group")) . "</td>";
+				}*/
+				echo "</tr>";
 				}
 			}
 			foreach ($this->children_groups as $id => $data)
@@ -172,22 +175,21 @@ class Accountlist
 				foreach ($this->children_ledgers as $id => $data){
 					if($data['total']!=0){
 					echo "<tr class=\"tr-ledger\">";
-					echo "<td class=\"td-ledger\" width='30%'>";
+					echo "<td class=\"td-ledger\">";
 					echo $this->print_space($this->counter);
 					echo "&nbsp;" . anchor('report/ledgerst/' . $data['id'], $data['name'], array('title' => $data['name'] . ' Ledger Statement', 'style' => 'color:#000000'));
 					echo "</td>";
 					//echo "<td>Ledger Account</td>";
 					/*Dr Opening*/
-					echo "<td class=\"td-ledger\" align='right'>" ;
-					$convert_cur=convert_cur($data['opbalance']);
-					if($data['optype']=='D' and $convert_cur!=0){echo convert_cur($data['opbalance']);}else echo '-' ;
+					echo "<td align='right'>" ;
+					if($data['optype']=='D'){echo convert_cur($data['opbalance']);}else echo '-' ;
 					echo "</td>";
 					/*Cr Opening*/
-					echo "<td class=\"td-ledger\" align='right'>" ;
-					if($data['optype']!='D' and $convert_cur!=0){echo convert_cur($data['opbalance']);}else echo '-' ;
+					echo "<td align='right'>" ;
+					if($data['optype']!='D'){echo convert_cur($data['opbalance']);}else echo '-' ;
 					echo "</td>";
 					/*Dr Total*/
-					echo "<td class=\"td-ledger\" align='right'>";
+					echo "<td align='right'>";
 					$dr_total = $CI->Ledger_model->get_dr_total($data['id']);
 					if ($dr_total)
 					{
@@ -199,7 +201,7 @@ class Accountlist
 					//convert_amount_dc($data['total']) . 
 					"</td>";
 					/*Cr Total*/
-					echo "<td class=\"td-ledger\" align='right'>";
+					echo "<td align='right'>";
 					$cr_total = $CI->Ledger_model->get_cr_total($data['id']);
 					if ($cr_total)
 					{
@@ -213,7 +215,7 @@ class Accountlist
 					/*Closings*/
 					$clbal_amount = $CI->Ledger_model->get_ledger_balance($data['id']);
 					/*Dr Closing*/
-					echo "<td class=\"td-ledger\" align='right'>";
+					echo "<td align='right'>";
 					if ($clbal_amount < 0)
 						echo "-";// . convert_cur(-$amount);
 					else
@@ -221,7 +223,7 @@ class Accountlist
 					//echo convert_amount_dc($clbal_amount);
 					echo "</td >";
 					/*Cr Closing*/
-					echo "<td class=\"td-ledger\"align='right'>";
+					echo "<td align='right'>";
 					if ($clbal_amount < 0)
 						echo convert_cur(-$clbal_amount);// . convert_cur(-$amount);
 					else

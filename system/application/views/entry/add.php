@@ -327,7 +327,7 @@ $(document).ready(function() {
 	echo "<p>";
 	echo form_submit('submit', 'Create');
 	echo " ";
-	echo anchor('entry/show/' . $current_entry_type['label'], 'Back', array('title' => 'Back to ' . $current_entry_type['name'] . ' Entries'));
+//	echo anchor('entry/show/' . $current_entry_type['label'], 'Back', array('title' => 'Back to ' . $current_entry_type['name'] . ' Entries'));
 	echo "</p>";
 
 	echo form_close();

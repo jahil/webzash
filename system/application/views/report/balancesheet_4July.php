@@ -1,7 +1,7 @@
 <?php
 	$this->load->library('accountlist');
 
-	echo "<table border='0' width='100%'>";
+	echo "<table border=0>";
 	echo "<tr valign=\"top\">";
 
 	$liability = new Accountlist();

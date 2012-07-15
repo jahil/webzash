@@ -14,25 +14,25 @@ foreach ($cur_entry_ledgers->result() as $row)
 	echo "<td>" . $this->Ledger_model->get_name($row->ledger_id) . "</td>";
 	if ($row->dc == "D")
 	{
-		echo "<td>Dr " . convert_cur($row->amount) . "</td>";
+		echo "<td>Dr " . $row->amount . "</td>";
 		echo "<td></td>";
 	} else {
 		echo "<td></td>";
-		echo "<td>Cr " . convert_cur($row->amount) . "</td>";
+		echo "<td>Cr " . $row->amount . "</td>";
 	}
 	echo "</tr>";
 	$odd_even = ($odd_even == "odd") ? "even" : "odd";
 }
 ?>
-<tr class="entry-total"><td colspan=2><strong>Total</strong></td><td id=dr-total>Dr <?php echo convert_cur($cur_entry->dr_total); ?></td><td id=cr-total">Cr <?php echo convert_cur($cur_entry->cr_total); ?></td></tr>
+<tr class="entry-total"><td colspan=2><strong>Total</strong></td><td id=dr-total>Dr <?php echo $cur_entry->dr_total; ?></td><td id=cr-total">Cr <?php echo $cur_entry->cr_total; ?></td></tr>
 <?php
 if ($cur_entry->dr_total != $cur_entry->cr_total)
 {
 	$difference = $cur_entry->dr_total - $cur_entry->cr_total;
 	if ($difference < 0)
-		echo "<tr class=\"entry-difference\"><td colspan=2><strong>Difference</strong></td><td id=\"dr-diff\"></td><td id=\"cr-diff\">" . convert_cur($cur_entry->cr_total) . "</td></tr>";
+		echo "<tr class=\"entry-difference\"><td colspan=2><strong>Difference</strong></td><td id=\"dr-diff\"></td><td id=\"cr-diff\">" . $cur_entry->cr_total . "</td></tr>";
 	else
-		echo "<tr class=\"entry-difference\"><td colspan=2><strong>Difference</strong></td><td id=\"dr-diff\">" .  convert_cur($cur_entry->dr_total) .  "</td><td id=\"cr-diff\"></td></tr>";
+		echo "<tr class=\"entry-difference\"><td colspan=2><strong>Difference</strong></td><td id=\"dr-diff\">" .  $cur_entry->dr_total .  "</td><td id=\"cr-diff\"></td></tr>";
 }
 ?>
 </table>
